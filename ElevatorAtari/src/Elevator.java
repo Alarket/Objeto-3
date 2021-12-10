@@ -1,3 +1,4 @@
+import java.util.concurrent.Semaphore;
 
 public class Elevator extends Thread{
 
@@ -9,46 +10,56 @@ public class Elevator extends Thread{
 	int destino;
 	
 	Passageiro p;
+	Passageiro[] pass;
 	
 	
-	
+	Semaphore semaforo;
+    boolean sendochan = false;
 	
 
-	public Elevator(Passageiro p,int numAndar) {
+	public Elevator(int numAndar,Semaphore semaforo) {
 		//this.setPessoa(pessoa);
-	   setP(p);
+	  
+	   this.semaforo = semaforo;
+	 
 	}
 	
 	@Override
 	public void run(){
-		
-		if(livre && p.chamada) {
-			BuscarPass();
-		}
+		while(true)	{	
+			
+		try {
+			sleep((int)(1000.0f));
+				}catch(InterruptedException e) {
+					
+					e.printStackTrace();
+				}
+		if (sendochan) {
+		BuscarPass();
 	    AbrirPorta();
-	    
-//		AbrirPorta(); 
-//		FecharPorta();
-//		VisitarAndar();
-//		AbrirPorta(); 
-//		FecharPorta();
-	//	PegarPass();
-		
+	    FecharPorta();
+	    LevarPass();
+	    FecharPorta();
+		}
+		}
+	
 	}
+
 	public void BuscarPass() {
 		System.out.println("--elevador esta no andar"+ AndarAtual);
 		this.destino = p.getAndarAtual();
 		
 		if(destino < AndarAtual) {
-		
-			desce();
-			
+			while(destino < AndarAtual ) {
+			 desce();
+			}
 		}
 		else{
 			
 			if(destino > AndarAtual) {
-			sobe();
-			
+				while(destino > AndarAtual ) {
+			     sobe();
+				}
 		    }
 		}
 		
@@ -61,22 +72,47 @@ public class Elevator extends Thread{
 			}
 	}
 		
-	
+	public void LevarPass() {
+		System.out.println("--levar passageiro "+ p.getNum() + " para o andar "+ p.getAndarDestino());
+		this.destino = p.getAndarDestino();		
+		if(destino < AndarAtual) {
+			while(destino < AndarAtual ) {
+			desce();
+			}
+		}
+		else{
+			
+			if(destino > AndarAtual) {
+				while(destino > AndarAtual ) {
+			  sobe();
+				}
+		    }
+		}
+		
+		if(AndarAtual == destino) {
+			AbrirPorta(); 
+			p.PSair();
+			p.AndarAtual = destino;
+			//p.setChegou(isAlive());
+				
+			}
+	}
+	  
 	
 	 public void sobe() {
-		 while(destino > AndarAtual ) {
+		 
 			 AndarAtual++;
 			System.out.println("--elevador subiu para andar"+ AndarAtual);
 			
-		 }
+		 
 	   } 
 	   
 	   public void desce() {
-		   while(destino < AndarAtual ) {
+		   
 			   AndarAtual--;
 				System.out.println("--elevador desceu para andar"+ AndarAtual);
 				
-			 }
+			
 			
 	   }
 	
@@ -85,6 +121,13 @@ public class Elevator extends Thread{
 	public void AbrirPorta() {
 		
 		System.out.println("--elevador abriu a porta ");
+		try {
+			sleep((int)(5000.0f));
+				}catch(InterruptedException e) {
+					
+					e.printStackTrace();
+				}
+				
 	}
 	
 	public void FecharPorta() {
@@ -99,10 +142,7 @@ public class Elevator extends Thread{
 	}
 	
 	
-	public void PegarPass() {
-		System.out.println("--elevador pegou pessoa"+p.getId());
-	}
-	  
+	
 	  //get e set
 	public Passageiro getP() {
 		return p;
@@ -111,6 +151,11 @@ public class Elevator extends Thread{
 	public void setP(Passageiro p) {
 		this.p = p;
 	}
+	
+	public Passageiro[] getPass() {
+		return pass;
+	}
+
 
 //   public Pessoa getPessoa() {
 //		return pessoa;
