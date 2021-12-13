@@ -1,29 +1,39 @@
 import java.util.concurrent.Semaphore;
 
-public class Elevator extends Thread{
+import javax.swing.ImageIcon;
+import javax.swing.Timer;
 
+import java.awt.Image;
+
+public class Elevator extends Thread{
+	
+	// variaveis logicas
+	boolean sendochan = false;
 	boolean livre = true;
 	boolean aberto = true;
 	int numAndar;
-	int AndarAtual = 5;
-	//Pessoa pessoa;
+	int AndarAtual = 1;
 	int destino;
-	
 	Passageiro p;
-	Passageiro[] pass;
-	
-	
 	Semaphore semaforo;
-    boolean sendochan = false;
 	
+	// variaveis visuais
+	private float x  ,y=600;
+	private int altura ,largura;
+	private Image imagem;
 
-	public Elevator(int numAndar,Semaphore semaforo) {
+	public Elevator(int numAndar) {
 		//this.setPessoa(pessoa);
 	  
-	   this.semaforo = semaforo;
+	  // this.semaforo = semaforo;
 	 
 	}
 	
+	
+	
+
+
+	// metodos de logica
 	@Override
 	public void run(){
 		while(true)	{	
@@ -35,6 +45,7 @@ public class Elevator extends Thread{
 					e.printStackTrace();
 				}
 		if (sendochan) {
+			//update();
 		BuscarPass();
 	    AbrirPorta();
 	    FecharPorta();
@@ -67,21 +78,20 @@ public class Elevator extends Thread{
 		
 		if(AndarAtual == p.AndarAtual ) {
 			p.chegou = true;
-			//p.setChegou(isAlive());
-				
+		
 			}
 	}
 		
 	public void LevarPass() {
 		System.out.println("--levar passageiro "+ p.getNum() + " para o andar "+ p.getAndarDestino());
 		this.destino = p.getAndarDestino();		
+		
 		if(destino < AndarAtual) {
 			while(destino < AndarAtual ) {
 			desce();
 			}
 		}
-		else{
-			
+		else{	
 			if(destino > AndarAtual) {
 				while(destino > AndarAtual ) {
 			  sobe();
@@ -91,29 +101,47 @@ public class Elevator extends Thread{
 		
 		if(AndarAtual == destino) {
 			AbrirPorta(); 
-			p.PSair();
 			p.AndarAtual = destino;
-			//p.setChegou(isAlive());
-				
-			}
+			p.PSair();
+						
+		}
 	}
 	  
 	
 	 public void sobe() {
 		 
 			 AndarAtual++;
-			System.out.println("--elevador subiu para andar"+ AndarAtual);
+			 y-=100;
+			 if(p.dentro) {
+			 p.setY(p.getY()-100);
+			 }
+            //update();
+			System.out.println("--elevador subiu para andar"+ AndarAtual); 
 			
-		 
+			try {
+				sleep((int)(1000.0f));
+					}catch(InterruptedException e) {
+						
+						e.printStackTrace();
+					}
+	
 	   } 
 	   
 	   public void desce() {
 		   
 			   AndarAtual--;
-				System.out.println("--elevador desceu para andar"+ AndarAtual);
+			   y+=100;
+			   if(p.dentro) {
+			   p.setY(p.getY()+100);
+			   }
+				System.out.println("--elevador desceu para andar"+ AndarAtual);	
 				
-			
-			
+				try {
+					sleep((int)(1000.0f));
+						}catch(InterruptedException e) {
+							
+							e.printStackTrace();
+						}
 	   }
 	
 	
@@ -141,6 +169,22 @@ public class Elevator extends Thread{
 		
 	}
 	
+	// metodos de visual
+	
+	public void load() {
+		ImageIcon referencia = new ImageIcon("res\\Elevador_Aberto.png");
+		imagem = referencia.getImage();
+		altura = imagem.getHeight(null);	
+		largura = imagem.getWidth(null);
+		}
+	public void update() {
+		
+		
+		y-=100;
+		
+	}
+	 
+	
 	
 	
 	  //get e set
@@ -152,17 +196,18 @@ public class Elevator extends Thread{
 		this.p = p;
 	}
 	
-	public Passageiro[] getPass() {
-		return pass;
+	public float getX() {
+		return x;
 	}
 
 
-//   public Pessoa getPessoa() {
-//		return pessoa;
-//	}
-//
-//	public void setPessoa(Pessoa pessoa) {
-//		this.pessoa = pessoa;
-//	}
+	public float getY() {
+		return y;
+	}
 
+
+	public Image getImagem() {
+		return imagem;
+	}
+	
 }

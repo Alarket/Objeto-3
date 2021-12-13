@@ -6,5 +6,6 @@ public class Main {
 	  // Pessoa pessoa = new Pessoa(5,10);
 	   
 	  Predio predio = new Predio(); 
+	  
 	  }
 }
