@@ -5,7 +5,7 @@ import java.util.concurrent.Semaphore;
 import javax.swing.ImageIcon;
 public class Passageiro extends Thread{
 	
-	// variaveis logicas
+	// VARIAVEIS DE LOGICA
 	public int AndarAtual;
     public int andarDestino;	
 	public int num;
@@ -17,32 +17,36 @@ public class Passageiro extends Thread{
 	int posx;
 	int posy;
 	Random rnd = new Random();
+	Random rd = new Random();
 	Elevator elevator;
-	boolean running = true;
+	public boolean running = true;
     private Semaphore semaforo; 
 
-    //variaveis visuais
+    //VARIAVEIS DE INTERFACE
     private float x =100 ,y;
-	private int altura ,largura;
-	private Image imagem;
 	public boolean dentro = false;
-    
-    //metodos de logicas
+	public Image[] imagens;
+	
+	 
+	 //METODOS DE LOGICA
 	public Passageiro(int num,int andarAtual,int andarDestino,Semaphore sema) {
+		
+	imagens = new Image[5];
 	 semaforo = sema;
-		setNum(num);
+	 setNum(num);
 	 setAndarAtual( andarAtual);
 	 setAndarDestino(andarDestino);
-	 y = 700 -( AndarAtual * 100);
+	 y = 750 -( AndarAtual * 100);
+	
 	}
 	
 	
 	@Override
      public void run(){
 		
-	 while(running) {
-		 try {
-				sleep((int)(rnd.nextFloat()* 1000.0f));
+	      while(running) {
+		      try {
+				sleep((int)(rnd.nextFloat()* 2000.0f));
 					}catch(InterruptedException e) {
 						
 						e.printStackTrace();
@@ -51,137 +55,161 @@ public class Passageiro extends Thread{
 			PChamar();	
 		    PEntrar();
 			
-	 }
+	      }
 	 }
 	 
-		public void PChamar() {
+	public void PChamar() {
 			
 		 if(semaforo.tryAcquire()) {
 			 System.out.println("pessoa"+ num +" chamando elevador...");
 			 elevator.setP(this);
-			 
-			 elevator.sendochan = true;
+			 elevator.verificar();
+			 //elevator.sendochan = true;
 		 }
-		try {
-			sleep((int)(rnd.nextFloat()* 6000.0f));
-				}catch(InterruptedException e) {
-					
-					e.printStackTrace();
-				}
-				
-			
-		}
-		public void PAtual() {
+		  Dormir(5);	
+	}
+		
+	public void PAtual() {
 		
 			System.out.println("pessoa"+ num +" estar no andar"+ AndarAtual);
-		}
-		
-		public void PDormir() {
-			//System.out.println("pessoa"+ id +" esperando...");
-			
-			try {
-			sleep((int)(rnd.nextFloat()* 5000.0f));
-			}catch(InterruptedException e) {
-				
-				e.printStackTrace();
-			}
-			
-		}
+	}
 	   
-		public void PEntrar(){
+	public void PEntrar(){
 			if (chegou) {
-			System.out.println("pessoa "+ num +" entra no elevador");
-			 x=0;
-			 dentro = true;
-			chegou = false;
-			try {
-				Thread.sleep((int)( 5000.0f));
-				}catch(InterruptedException e) {
-				
-					e.printStackTrace();
-					
-				}
+			     System.out.println("pessoa "+ num +" entra no elevador");
+			     update("ENTRAR");
+			     dentro = true;//remover isso
+			     chegou = false;
+			 Dormir(3);
 			}		
-		}
-		public void PSair() {
-			semaforo.release();
+	}
+		
+	
+
+
+	public void PSair() {
+			//semaforo.release();
 			System.out.println("--elevador chegou ao andar destino do passageiro "+ getNum());
 			System.out.println("pessoa"+ num +" saiu do elevador no andar"+ AndarAtual);
-			x=100;
-			dentro = false;
+			update("SAIR");
+			dentro = false;//remover isso
 		    running = false;
 			elevator.sendochan = false;
-			}
-        
-       // metodos visuais
-		public void load() {
-			ImageIcon referencia = new ImageIcon("res\\Pass.png");
-			imagem = referencia.getImage();
-			altura = imagem.getHeight(null);	
-			largura = imagem.getWidth(null);
-			}
+	}
+		
+	public void Dormir(int sec) {
+			
+			try {
+			         sleep((int)(sec*1000.0f));
+		    }catch(InterruptedException e) {
+			          e.printStackTrace();
+		    }
+	}
 		
 		
-		// get e set
-		public int getNum() {
+		
+    // METODOS DE INTERFACE
+	public void load() {
+
+			ImageIcon ref1 = new ImageIcon("res\\Passageiro1.png");
+         	imagens[0] = ref1.getImage();
+         	ImageIcon ref3 = new ImageIcon("res\\Passageiro3.png");
+         	imagens[1] = ref3.getImage();
+         	ImageIcon ref4 = new ImageIcon("res\\Passageiro4.png");
+         	imagens[2] = ref4.getImage();
+         	ImageIcon ref5 = new ImageIcon("res\\Passageiro5.png");
+         	imagens[3] = ref5.getImage();
+         	ImageIcon ref6 = new ImageIcon("res\\Passageiro6.png");
+         	imagens[4] = ref6.getImage();
+         	
+			}
+
+	public void update(String op ) {
+			
+			switch(op) {
+			
+			case "ENTRAR":
+				x=20;
+				break;
+            case "SAIR":
+            	x=200+ rd.nextInt(10)*20;
+				break;
+            case "SUBIR":
+            	 if(dentro) {
+        			   setY(getY()-100);
+        			   }
+				break;
+            case "DESCER":
+            	  if(dentro) {
+          			   setY(getY()+100);
+          			   }
+				break;
+			}
+		}
+
+		// GETTERS E SETTERS DA LOGICA
+	public int getNum() {
 			return num;
-		}
-
-		public void setNum(int num) {
+	}
+	
+	public void setNum(int num) {
 			this.num = num;
-		}
+	}
 		
-		public int getAndarAtual() {
+	public int getAndarAtual() {
 			return AndarAtual;
-		}
+	}
 
-		public void setAndarAtual(int andarAtual) {
+	public void setAndarAtual(int andarAtual) {
 			AndarAtual = andarAtual;
-		}
+	}
 		
 		
-		public boolean isChegou() {
+	public boolean isChegou() {
 			return chegou;
-		}
-		public void setChegou(boolean chegou) {
+	}
+		
+	public void setChegou(boolean chegou) {
 			this.chegou = chegou;
-		}
+	}
 
 
-		public int getAndarDestino() {
+	public int getAndarDestino() {
 			return andarDestino;
-		}
+	}
 
 
-		public void setAndarDestino(int andarDestino) {
+	public void setAndarDestino(int andarDestino) {
 			this.andarDestino = andarDestino;
-		}
+	}
 		
 
-	     public void setElevator(Elevator elevator) {
+	public void setElevator(Elevator elevator) {
 			this.elevator = elevator;
-		}
+	}
+	public Semaphore getSemaforo() {
+		return semaforo;
+	}
 
-		// getset visuais
-	     
-	     public float getX() {
+		// GETTERS E SETTERS DA INTERFACE
+    public float getX() {
 				return x;
-			}
+	}
 
 
-			public float getY() {
+	public float getY() {
 				return y;
-			}
+	}
 
 
-			public void setY(float y) {
+	public void setY(float y) {
 				this.y = y;
-			}
+	}
 
 
-			public Image getImagem() {
-				return imagem;
-			}
-	     
-	     
+
+	public Image[] getImagens() {
+				return imagens;
+	}
+			
 }
